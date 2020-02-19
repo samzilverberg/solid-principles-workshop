@@ -1,1 +1,718 @@
-<h1> test github pages </h1>
+<!doctype html>
+<html>
+
+<head>
+	<meta charset="utf-8">
+	<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+
+	<title>SOLID Principles</title>
+
+	<link rel="stylesheet" href="css/reset.css">
+	<link rel="stylesheet" href="css/reveal.css">
+	<link rel="stylesheet" href="css/theme/black.css">
+
+	<!-- Theme used for syntax highlighting of code -->
+	<link rel="stylesheet" href="lib/css/monokai.css">
+
+	<!-- Printing and PDF exports -->
+	<script>
+		var link = document.createElement('link');
+		link.rel = 'stylesheet';
+		link.type = 'text/css';
+		link.href = window.location.search.match(/print-pdf/gi) ? 'css/print/pdf.css' : 'css/print/paper.css';
+		document.getElementsByTagName('head')[0].appendChild(link);
+	</script>
+</head>
+
+<body>
+	<div class="reveal">
+		<div class="slides">
+			<section>
+				<h1>SOLID Principles</h1>
+				<a
+					href="https://github.com/samzilverberg/solid-principles-workshop">https://github.com/samzilverberg/solid-principles-workshop</a>
+			</section>
+
+			<section>
+				<h3>SOLID what?</h3>
+				<p>
+					Acronym for 5 principles intended to make software designs more understandable, flexible and maintainable.
+				</p>
+
+				<aside class="notes" data-markdown>
+					- understandable = readable, has predictible order
+					- flexible = easier to add features
+					- maintainable = easier to make changes to existing features
+				</aside>
+			</section>
+
+			<section>
+				<h3>Origins</h3>
+				<ul style="text-align: left;">
+					<li>
+						introduced in 2000 by Robert C. Martin, aka Uncle Bob, in his paper "Design Principles and Design Patterns".
+					</li>
+					<li>
+						The SOLID acronym was coined later by Michael Feathers
+					</li>
+				</ul>
+
+				<aside class="notes" data-markdown>
+					- uncle bobs paper introduced more principles, resource at end of slides
+				</aside>
+			</section>
+
+			<section>
+				<h3>Some reasons to learn this</h3>
+				<ul style="text-align: left;">
+					<li>
+						You've probably been practicing some (if not all) of these principles instinctively and unconsciously.<br />
+						Its good to "formalize" this and be conscious about it.
+					</li>
+					<li>
+						Gives extra points to think about in code review (or refactor)
+					</li>
+					<li>
+						Can be applied to all levels of software, from code to architecture.
+					</li>
+					<li>
+						Job interviews: some universities teach this and some workplaces expect you to know this (my uni didn't btw)
+					</li>
+				</ul>
+			</section>
+
+
+			<section>
+				<h3>!important: Principles, not Rules</h3>
+				<p>
+					As with any other principle in life, every SOLID principle can be misused or overused to the extent of being
+					counterproductive
+				</p>
+
+
+				<aside class="notes" data-markdown>
+					- some links to misuse at resources at end of slides
+					- will talk mostly about what each principle is, but will also try to talk about what it is NOT
+				</aside>
+			</section>
+			<section>
+				<h2>The 5 Principles</h2>
+				<table cellspacing="0" border="1" style="font-size: 0.6em">
+					<tbody>
+						<tr>
+							<td><b>S</b></td>
+							<td>Single Responsibility Principle</td>
+							<td><i>A class should have one, and only one, reason to change</i></td>
+						</tr>
+						<tr>
+							<td><b>O</b></td>
+							<td>Open Closed Principle</td>
+							<td><i>You should be able to extend a classes behavior, without modifying it</i></td>
+						</tr>
+						<tr>
+							<td><b>L</b></td>
+							<td>Liskov Substitution Principle</td>
+							<td><i>Derived classes must be substitutable for their base classes</i></td>
+						</tr>
+						<tr>
+							<td><b>I</b></td>
+							<td>Interface Segregation Principle</td>
+							<td><i>Make fine grained interfaces that are client specific</i></td>
+						</tr>
+						<tr>
+							<td><b>D</b></td>
+							<td>Dependency Inversion Principle</td>
+							<td><i>Depend on abstractions, not on concretions</i></td>
+						</tr>
+					</tbody>
+				</table>
+				<p>Lets examine them one by one</p>
+			</section>
+
+			<section>
+				<h3>Single Responsibility Principle</h3>
+				<small>A class should have one, and only one, reason to change</small>
+			</section>
+			<section>
+				<ul>
+					<li>Keep classes focused on one area of functionality</li>
+					<li>If a new area is needed, put it in another class</li>
+				</ul>
+
+				<p>In other words, SRP encourages you to divide and group similar functionality into different classes</p>
+				<aside class="notes" data-markdown>
+					this might sound straightforward and obvious, but its really easy and tempting to pile on FN on an existing
+					class and I bet you did this in the past (I certainly did)
+				</aside>
+			</section>
+
+			<section>
+				<h3>Benefits of SRP</h3>
+
+				<ul>
+					<li><strong>Readability</strong> - Classes that do many things are hard to follow.
+					</li>
+					<li><strong>Testability</strong> – Breaking down your code into small modules makes them easier to test.</li>
+					<li><b>Maintainability</b> – change to an area of responsibility will likely only occur in the class
+						responsible for it.
+					</li>
+				</ul>
+
+				<aside class="notes" data-markdown>
+					- readability: As your applications grow in size and complexity, readability becomes one of the top
+					priorities.
+					- maintenance: you will not break tests of other modules
+
+					surface of change. solid principles reduce the "surface of change" for maintenance or adding new features.
+					less surface of change = less bugs = more reliable
+				</aside>
+			</section>
+
+			<section>example of class evolving and violating SRP</section>
+
+			<section>
+				Requirements: <br />
+				Canvas with width, height and can draw a char on it:
+				<pre>
+					<code class="hljs">
+class Canvas {
+	val contents[][]
+	val height, width
+
+	private def inBounds(x,y)
+
+	def drawPointAt(x,y, char) = {
+		if (inBounds) contents[x][y] = char
+	}
+
+	def drawLine(x1,y1, x2, y2) = { only supports horizontal line }
+
+	def toString = contents.map(_.mkString).mkString
+}
+					</code>
+				</pre>
+				<aside class="notes" data-markdown>
+
+				</aside>
+			</section>
+
+			<section>
+				<div>New requirement of saving canvas to file might result in this implementation:</div>
+				<pre>
+					<code class="hljs">
+class Canvas {
+	... 
+	def saveToFile(filepath) = { serialize somehow to file }
+}
+					</code>
+				</pre>
+			</section>
+			<aside class="notes" data-markdown>
+
+			</aside>
+			<section>
+				<p>SRP violation: Canvas now has 2 unrelated reasons to change</p>
+				<ol>
+					<li>Canvas model changes: if drawLine should also support vertical</li>
+					<li>Save to file changes: if file should be saved in a different way</li>
+				</ol>
+			</section>
+			<aside class="notes" data-markdown>
+
+			</aside>
+			<section>
+				<p>Solve the violation by separating saving to file to its own class</p>
+				<pre>
+					<code class="hljs">
+class CanvasFileSaver {
+	def saveToFile(canvas) = ...
+} 
+					</code>
+				</pre>
+				<aside class="notes" data-markdown>
+
+				</aside>
+			</section>
+
+			<section>
+				<h4>Caution!</h4>
+				<p>Careful of interpreting this as "class should have one job only"</p>
+				<p>You might end up with a simple functionality divided between 5 classes each with a 4 liner function</p>
+
+				<p>"one reason to change" should be a business reason or an important technical one</p>
+
+				<aside class="notes" data-markdown>
+					remember, principles not rules. i added some links in resources in end of slides showing misuse and talking
+					about "what is one reason to change".
+				</aside>
+			</section>
+
+
+			<section>
+				<h3>Open Closed Principle</h3>
+				<p><small>originaly stated as:</small></p>
+				<small>Software entities ... should be open for extension, but closed for modification</small>
+			</section>
+
+			<section>
+				<p><small>But later phrased in a better way by Uncle Bob as:</small></p>
+				<p>You should be able to extend a classes behavior, without modifying it</p>
+				<aside class="notes" data-markdown>
+
+				</aside>
+			</section>
+
+			<section>
+				<p>
+					The idea behind the Open Closed Principle is to ensure that the classes have scope for extension in the future
+					and that this extension will not break existing code.<br />
+					New features are added by extending or writing new code without modifying old code.<br />
+					Old code remains unchanged, tested and this reliable.
+				</p>
+				<aside class="notes" data-markdown>
+
+				</aside>
+			</section>
+
+			<section>
+				<h3>Benefits of OCP</h3>
+				<ul>
+					<li><strong>Reliability –</strong> Existing code is closed to modification. adding new features will not
+						require changing old code. So existing code stays tested, unchanged and thus reliable.</li>
+					<li><strong>Agility</strong> – Code is open to adding new features via extension. making the development
+						process fast and agile as less (or no) refactoring of old code is required to add new features.</li>
+				</ul>
+				<aside class="notes" data-markdown>
+					again, surface of change. solid principles reduce the "surface of change" for maintenance or adding new
+					features. less surface of change = less bugs = more reliable
+				</aside>
+			</section>
+
+			<section>
+				<p>Example</p>
+				<p>
+					We have a TickerPrice class, which holds a price for a ticket.<br />
+					The price can be discounted according to the customer type
+				</p>
+			</section>
+
+			<section>
+				<p>Implementation might initially look like this:</p>
+				<pre><code class="hljs">
+class TicketPrice {
+	val price
+
+	def getPrice() = {
+		if(customer == 'vip') {
+			return price * 0.25;
+		}
+		if(customer == 'family') {
+			return price * 0.5;
+		}
+	}
+}				
+			</code></pre>
+			</section>
+
+			<section>
+				<p>Adding customer types or changing the behavior of an existing type would break the existing tests for this
+					code</p>
+				<p>This is a violation of the OCP</p>
+			</section>
+
+			<section>
+				<p>Solve the violation by refactoring customer types with behavior to own classes:</p>
+				<pre><code class="hljs">
+class TicketPrice {
+	def getPrice() = this.price
+}
+
+class VIPDiscount extends TicketPrice {
+	def giveDiscountedPrice() {
+		return super.getPrice() * 0.25;
+	}
+}
+
+class FamilyDiscount extends TicketPrice {
+	def giveDiscountedPrice() {
+		return super.getPrice() * 0.5;
+	}
+}
+				</code></pre>
+			</section>
+
+			<section>
+				<p>In this way, we can continue adding more discount types without breaking the core TicketPrice behavior</p>
+
+				<p>In other words, TickerPrice is
+					<ul>
+						<li><strong>Open for extension</strong> by adding new types of discount in new classes. </li>
+						<li><strong>Closed for modification</strong> because discount changes are not done in the original
+							TicketPrice code.
+						</li>
+					</ul>
+				</p>
+
+				<aside class="notes" data-markdown>
+
+				</aside>
+			</section>
+
+			<section>
+				<h3>Disclaimer for next 2 principles</h3>
+				<p>
+					The examples for the Liskov Substitution and Interface Segregation principles might look like these principles
+					were made only for static languages.<br/> 
+					But actually the principles can also be applied to dynamic langs and also on higher levels (architecture, system etc)
+				</p>
+				<aside class="notes" data-markdown>
+					there are ruby and javascript examples for both on the web
+				</aside>
+			</section>
+
+			<section>
+				<h3>Liskov Substitution Principle</h3>
+				<small>Derived classes must be substitutable for their base classes</small>
+				<aside class="notes" data-markdown>
+
+				</aside>
+			</section>
+
+			<section>
+				<p>Example</p>
+				<pre><code class="hljs">
+class Bird{
+	def fly() = { fly }
+}
+class Eagle extends Bird {
+}
+
+class Ostrich extends Bird {
+	override def fly() = { throw new Exception("cant fly") }
+}
+				</code></pre>
+			</section>
+
+			<section>
+				<p><strong>Ostrich is a bird, but it cant fly!</strong></p>
+				<p>So if you had to iterate over birds and make them fly:</p>
+				<pre><code class="hljs">
+for (bird: birds) {
+	if (bird instanceOf Ostrich) {
+		//noop - to avoid an error being thrown
+	} else bird.fly()
+}
+					</code></pre>
+				<p>this invalidates the Liskov Substitution Principle because an Ostrich cant be a (safe) substitute for duck -
+					it throws exception on fly</p>
+			</section>
+
+
+			<section>
+				<p>refactor according to LSP to</p>
+				<pre><code class="hljs">
+class Bird {
+	def makeSound() // only fns that all birds have!
+}
+class FlyingBirds extends Bird {
+	def fly() = { fly... }
+} 
+
+class Eagle extends FlyingBirds {}
+class Ostrich extends Bird {}
+								
+for (bird: birds) bird.makeSound()
+for (bird: flyingBirds) bird.fly() //safe now
+				</code></pre>
+				</p>
+				<aside class="notes" data-markdown>
+					and this also helps enforce OCP in places where this kind of loop is used.
+				</aside>
+
+			</section>
+
+			<section>
+				<p>Benefits of LSP:</p>
+				<ul>
+					<li>Maintainability: you don't need to worry about checking instanceOf or forgetting to override a fn of a
+						base class to be a no-op (or throw exception) </li>
+					<li>Reliability: less bugs from forgetting to check instanceOf or forgetting to override :)</li>
+				</ul>
+				<aside class="notes" data-markdown>
+
+				</aside>
+			</section>
+
+			<section>
+				<h3>Rule of thumb</h3>
+				<p>
+					If you find yourself writing instanceOf or overriding your own base class functions to do nothing, you should
+					do something about it.
+				</p>
+			</section>
+
+			<section>
+				<h3>Caution</h3>
+				<p>
+					Don't try to forsee all future usages of an interface.<br/>
+					It's ok to start with something and later refactor it<br/>
+					YAGNI approach.
+				</p>
+				<aside class="notes" data-markdown>
+					it can be hard (or unintuitive) to know in advance what fns an interface will have "forever".
+
+					its definitely ok to start with "all birds can fly" assumption and refactor first when the violation is detected by introduction of ostrich.
+
+					the YAGNI approach is great "You aren't gonna need it": Always implement things when you actually need them, never when you just foresee that you need them
+				</aside>
+			</section>
+
+			
+
+
+			<section>
+				<h3>Interface Segregation Principle</h3>
+				<small>Make fine grained interfaces that are client specific</small>
+				<aside class="notes" data-markdown>
+
+				</aside>
+			</section>
+
+			<section>
+				<p>Interface Segregation Principle is about avoiding "Fat" interfaces</p>
+				<p>This usually happens gradually. Starting from a small interface with a simple implementation that slowly
+					grows</p>
+				<p>Lets look at an example</p>
+				<aside class="notes" data-markdown>
+
+				</aside>
+			</section>
+
+			<section>
+				<p>We start with a simple Listener interface with just one method</p>
+				<pre><code class="hljs">
+interface Listener {
+	def onClick(event)
+}
+
+class FooEventListener implements Listener {
+	def onClick(event) = { ... }
+}
+				</code></pre>
+			</section>
+
+			<section>
+				<p>The implementation grows and we add events to be handled</p>
+				<pre><code class="hljs">
+interface Listener {
+	def onClick(event)
+	def onDoubleClick(event)
+	def onTripleClick(event)
+}
+
+class FooEventListener implements Listener {
+	def onClick(event) = { ... }
+	def onDoubleClick(event) = { ... }
+	def onTripleClick(event) = { ... }
+}
+				</code></pre>
+			</section>
+
+			<section>
+				<div>Then we suddenly need to add a new implementation which implements the interface only partially</div>
+				<pre><code class="hljs">
+class FooEventListener implements Listener {
+	...
+}
+
+class BarEventListener implements Listener {
+	// only interested in one click
+	def onClick(event) = { ... }
+	def onDoubleClick(event) = { /* do nothing */ }
+	def onTripleClick(event) = { /* do nothing */ }
+}
+				</code></pre>
+			</section>
+
+			<section>
+				<p>This violates ISP</p>
+				<p>
+					Our common interface Listener has now become "Fat" and contains methods that its implementations don't need
+				</p>
+				<p>The solution is simple: </p>
+				<small>Make fine grained interfaces that are client specific</small>
+			</section>
+
+			<section>
+				<p>Separate the big interface to smaller ones:</p>
+				<pre><code class="hljs">
+interface SingleClickListener { def onClick(event) }
+interface DoubleClickListener { def onDoubleClick(event) }
+interface TripleClickListener { def onTripleClick(event) }
+
+class FooEventListener implements SingleClickListener, DoubleClickListener, TripleClickListener {
+	...
+}
+
+class BarEventListener implements SingleClickListener {
+	...
+}
+				</code></pre>
+			</section>
+
+			<section>
+				<p>Benefits of ISP:</p>
+				<div>Pretty much like Liskov Substitution Principle.</div>
+				<div>By keeping interfaces "focused" and segregated you can avoid implementations of the interface that no-op or
+					even throw a NotImplException, which makes the code more reliable</div>
+				<aside class="notes" data-markdown>
+				</aside>
+			</section>
+
+			<section>
+				<p>
+					A nice saying is that Interface Segregation and Liskov Substitution are <strong>Two side of the same
+						coin</strong>
+				</p>
+				<p>
+					ISP is about the "client" side - keeping clients from impl your interfaces in an unwanted way.
+				</p>
+				<p>
+					LSP is about the "server" side - keeping you from from writing potentially dangerous code (runtime errs)
+				</p>
+			</section>
+
+
+			<section>
+				<h3>Dependency Inversion Principle</h3>
+				<small>Depend on abstractions, not on concretions</small>
+			</section>
+
+			<section>
+				<p><strong>The Dependency-Inversion Principle consists of two rules:</strong></p>
+				<ol style="text-align: left;">
+					<li>High-level modules should not depend on low-level modules. Both should depend on abstractions.</li>
+					<li>Abstractions should not depend upon details. Details should depend upon abstractions.</li>
+				</ol>
+
+				<aside class="notes" data-markdown>
+					- rule 2:
+					- details (such as mysql db) should depend on some IDB.
+					- the IDB should avoid having those details.
+				</aside>
+			</section>
+
+			<section>
+				<p><strong>What are high and low levels?</strong></p>
+				<ol style="text-align: left;">
+					<li>
+						<strong>Low-level</strong> - concrete implementation including the small details such as IO, I/O, storage
+						etc
+					</li>
+					<li>
+						<strong>High-level</strong> - business rules and the bigger picture
+					</li>
+				</ol>
+			</section>
+
+			<section>
+				<h3>Example of dependency inversion</h3>
+				<img src="dependency_inversion.png" />
+			</section>
+
+			<section>
+				<p>Benefits OR "Why avoid high-level modules depending on low-level?"</p>
+				<ul style="text-align: left;">
+					<li>low-level modules tend to change more often than high-level modules.</li>
+					<li>When we make a change in a low-level module, we want to prevent that we also need to make changes a
+						high-level module. <br />
+						We want to minimize the "surface of change".</li>
+					<li>High-level modules (biz rules) are easier to reuse when they aren't tightly coupled to low-level modules.
+					</li>
+				</ul>
+
+				<aside class="notes" data-markdown>
+					- low level changes: Things like the user interface, the communication with web services, persistence
+					regularly receive more updates than business rules and policies.
+					- reuse example: when we want to provide a new interface like a mobile app of API
+				</aside>
+			</section>
+
+
+			<section>
+				<p>Dependency Inversion Principle (DIP) is often confused with:</p>
+				<ul>
+					<li>Inversion of Control (IoC)</li>
+					<li>Dependency Injection (DI)</li>
+				</ul>
+			</section>
+
+			<section>
+				<hr />
+				<p>IoC is just inversing the control, the opposite of IoC is control! </p>
+
+				<div style="text-align: left;">
+					Example: onClick(callback) of a button, button is clicked but hands control over to the callback.
+				</div>
+				<hr />
+
+				<p>Dependency Injection is just a combination IoC and DIP to manage dependencies</p>
+
+				<div style="text-align: left;">
+					Instead of classes controlling and instantiating their dependencies, they give control to a DI framework,
+					asking for a concrete instance of an interface.
+				</div>
+				<hr />
+			</section>
+
+
+			<section data-markdown>
+				<script type="text/template">
+					<!-- .slide: text-align= left -->
+
+					## More Resources
+
+					- [SOLID on wiki](https://en.wikipedia.org/wiki/SOLID)
+					- [Full list of "The Principles of OOD" by uncle bob](http://butunclebob.com/ArticleS.UncleBob.PrinciplesOfOod)
+					- [StackOverflow example of overuse of Single Responsibility Principle](https://softwareengineering.stackexchange.com/questions/150760/single-responsibility-principle-how-can-i-avoid-code-fragmentation)
+					- [Deeper dive into SRP and how not to misuse it](https://qualitycoding.org/single-responsibility-principle/)
+					- [Series of blog posts explaining how SOLID could be mis-understood](https://hackernoon.com/you-dont-understand-the-single-responsibility-principle-abfdd005b137)
+
+				</script>
+			</section>
+
+			<section>
+				<div>Thanks, questions? ... </div>
+				<p>but wait, theres some more</p>
+			</section>
+
+
+			<section>
+				<h3>fun with SOLID kata</h3>
+				<a href="https://github.com/emilybache/Racing-Car-Katas">https://github.com/emilybache/Racing-Car-Katas</a>
+			</section>
+		</div>
+	</div>
+
+	<script src="js/reveal.js"></script>
+
+	<script>
+		// More info about config & dependencies:
+		// - https://github.com/hakimel/reveal.js#configuration
+		// - https://github.com/hakimel/reveal.js#dependencies
+		Reveal.initialize({
+			hash: true,
+			width: '80%',
+			height: '100%',
+			// showNotes: true,
+			dependencies: [
+				{ src: 'plugin/markdown/marked.js' },
+				{ src: 'plugin/markdown/markdown.js' },
+				{ src: 'plugin/highlight/highlight.js' },
+				{ src: 'plugin/notes/notes.js', async: true }
+			]
+		});
+	</script>
+</body>
+
+</html>
