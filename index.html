@@ -239,7 +239,7 @@ class CanvasFileSaver {
 				<p>Careful of interpreting this as "class should have one job only"</p>
 				<p>You might end up with a simple functionality divided between 5 classes each with a 4 liner function</p>
 
-				<p>"one reason to change" should be a business reason or an important technical one</p>
+				<p>"one reason to change" should be a business logic related reason or an important technical one</p>
 
 				<aside class="notes" data-markdown>
 					remember, principles not rules. i added some links in resources in end of slides showing misuse and talking
@@ -291,64 +291,80 @@ class CanvasFileSaver {
 			<section>
 				<p>Example</p>
 				<p>
-					We have a TickerPrice class, which holds a price for a ticket.<br />
-					The price can be discounted according to the customer type
+					We have a TicketPrice class, which holds a price for a ticket.<br />
+					The price can be discounted according to the customer type.<br/>
+					A PriceCalculator class performs this discount check.
 				</p>
 			</section>
 
 			<section>
 				<p>Implementation might initially look like this:</p>
 				<pre><code class="hljs">
-class TicketPrice {
-	val price
+case class TicketPrice(price)
 
-	def getPrice() = {
+class PriceCalculator {
+	def getDiscountedPrice(ticketPrice) = {
 		if(customer == 'vip') {
-			return price * 0.25;
+			return ticketPrice.price * 0.25;
 		}
-		if(customer == 'family') {
-			return price * 0.5;
+		else if(customer == 'family') {
+			return ticketPrice.price * 0.5;
 		}
+		else return ticketPrice.price;
 	}
-}				
+}
 			</code></pre>
 			</section>
 
 			<section>
 				<p>Adding customer types or changing the behavior of an existing type would break the existing tests for this
 					code</p>
-				<p>This is a violation of the OCP</p>
+				<p>This is where the Open Closed Principle can help</p>
+			</section>
+
+
+			<section>
+				<p>
+					Lets refactor according to OCP.
+				</p>
+				<pre><code class="hljs">
+class PriceCalculator {
+	def getDiscountedPrice(ticketPrice) = {
+			return ticketPrice.getDiscountedPrice();
+	}
+}
+									</code></pre>
 			</section>
 
 			<section>
-				<p>Solve the violation by refactoring customer types with behavior to own classes:</p>
+				<p>
+					Discount calculation according to customer types go in their own classes:
 				<pre><code class="hljs">
 class TicketPrice {
-	def getPrice() = this.price
+	def getDiscountedPrice() = price
 }
 
 class VIPDiscount extends TicketPrice {
-	def giveDiscountedPrice() {
-		return super.getPrice() * 0.25;
+	def getDiscountedPrice() = {
+		return price * 0.25;
 	}
 }
 
 class FamilyDiscount extends TicketPrice {
-	def giveDiscountedPrice() {
-		return super.getPrice() * 0.5;
+	def getDiscountedPrice() = {
+		return price * 0.5;
 	}
 }
 				</code></pre>
 			</section>
 
 			<section>
-				<p>In this way, we can continue adding more discount types without breaking the core TicketPrice behavior</p>
+				<p>In this way, we can continue adding more discount types without breaking the core PriceCalculator behavior</p>
 
-				<p>In other words, TickerPrice is
+				<p>In other words, PriceCalculator is
 					<ul>
 						<li><strong>Open for extension</strong> by adding new types of discount in new classes. </li>
-						<li><strong>Closed for modification</strong> because discount changes are not done in the original
-							TicketPrice code.
+						<li><strong>Closed for modification</strong> because discount changes are not done in the original PriceCalculator code.
 						</li>
 					</ul>
 				</p>
@@ -362,7 +378,7 @@ class FamilyDiscount extends TicketPrice {
 				<h3>Disclaimer for next 2 principles</h3>
 				<p>
 					The examples for the Liskov Substitution and Interface Segregation principles might look like these principles
-					were made only for static languages.<br/> 
+					were made only for staticaly typed languages.<br/> 
 					But actually the principles can also be applied to dynamic langs and also on higher levels (architecture, system etc)
 				</p>
 				<aside class="notes" data-markdown>
@@ -403,8 +419,7 @@ for (bird: birds) {
 	} else bird.fly()
 }
 					</code></pre>
-				<p>this invalidates the Liskov Substitution Principle because an Ostrich cant be a (safe) substitute for duck -
-					it throws exception on fly</p>
+				<p>this invalidates the Liskov Substitution Principle because an Ostrich cant be a (safe) substitute for bird - it throws exception on fly</p>
 			</section>
 
 
@@ -432,11 +447,11 @@ for (bird: flyingBirds) bird.fly() //safe now
 			</section>
 
 			<section>
-				<p>Benefits of LSP:</p>
+				<p>Benefits of LSP are Maintainability & Reliability:</p>
+				
 				<ul>
-					<li>Maintainability: you don't need to worry about checking instanceOf or forgetting to override a fn of a
-						base class to be a no-op (or throw exception) </li>
-					<li>Reliability: less bugs from forgetting to check instanceOf or forgetting to override :)</li>
+					<li>When extending base classes, you don't need to worry about overriding (or forgetting to) a fn of a base class to be a no-op (or throw exception) </li>
+					<li>When using a collection of the base class, you don't need to check instanceOf and can assume the base methods are safe</li>
 				</ul>
 				<aside class="notes" data-markdown>
 
@@ -454,7 +469,7 @@ for (bird: flyingBirds) bird.fly() //safe now
 			<section>
 				<h3>Caution</h3>
 				<p>
-					Don't try to forsee all future usages of an interface.<br/>
+					Don't try to forsee all future extensions of a base class.<br/>
 					It's ok to start with something and later refactor it<br/>
 					YAGNI approach.
 				</p>
@@ -489,47 +504,30 @@ for (bird: flyingBirds) bird.fly() //safe now
 			</section>
 
 			<section>
-				<p>We start with a simple Listener interface with just one method</p>
+				<p>We start with a simple Worker interface that can work and eat:</p>
 				<pre><code class="hljs">
-interface Listener {
-	def onClick(event)
+interface Worker {
+	def work()
+	def eat()
 }
 
-class FooEventListener implements Listener {
-	def onClick(event) = { ... }
+class NormalWorker implements Worker {
+	def work() = { ... }
+	def eat() = { ... }
 }
+
+class SlowWorker implements Worker { same but slower }
 				</code></pre>
 			</section>
 
 			<section>
-				<p>The implementation grows and we add events to be handled</p>
+				<p>A new requirement for a Robot worker arrives. <br/>
+					A robot doesn't eat</p>
+
 				<pre><code class="hljs">
-interface Listener {
-	def onClick(event)
-	def onDoubleClick(event)
-	def onTripleClick(event)
-}
-
-class FooEventListener implements Listener {
-	def onClick(event) = { ... }
-	def onDoubleClick(event) = { ... }
-	def onTripleClick(event) = { ... }
-}
-				</code></pre>
-			</section>
-
-			<section>
-				<div>Then we suddenly need to add a new implementation which implements the interface only partially</div>
-				<pre><code class="hljs">
-class FooEventListener implements Listener {
-	...
-}
-
-class BarEventListener implements Listener {
-	// only interested in one click
-	def onClick(event) = { ... }
-	def onDoubleClick(event) = { /* do nothing */ }
-	def onTripleClick(event) = { /* do nothing */ }
+class RobotWorker implements Worker {
+	def work() = { /* robot work */ }
+	def eat() = { /* do nothing */ }
 }
 				</code></pre>
 			</section>
@@ -537,7 +535,7 @@ class BarEventListener implements Listener {
 			<section>
 				<p>This violates ISP</p>
 				<p>
-					Our common interface Listener has now become "Fat" and contains methods that its implementations don't need
+					Our common interface Worker has now become "Fat" and contains methods that some of its  implementations don't need
 				</p>
 				<p>The solution is simple: </p>
 				<small>Make fine grained interfaces that are client specific</small>
@@ -546,36 +544,25 @@ class BarEventListener implements Listener {
 			<section>
 				<p>Separate the big interface to smaller ones:</p>
 				<pre><code class="hljs">
-interface SingleClickListener { def onClick(event) }
-interface DoubleClickListener { def onDoubleClick(event) }
-interface TripleClickListener { def onTripleClick(event) }
+interface Workable { def work() }
+interface Feedable { def eat() }
 
-class FooEventListener implements SingleClickListener, DoubleClickListener, TripleClickListener {
+class NormalWorker implements Workable, Feedable {
 	...
 }
 
-class BarEventListener implements SingleClickListener {
+class Robot implements Workable {
 	...
 }
 				</code></pre>
 			</section>
 
 			<section>
-				<p>Benefits of ISP:</p>
-				<div>Pretty much like Liskov Substitution Principle.</div>
-				<div>By keeping interfaces "focused" and segregated you can avoid implementations of the interface that no-op or
-					even throw a NotImplException, which makes the code more reliable</div>
-				<aside class="notes" data-markdown>
-				</aside>
-			</section>
-
-			<section>
 				<p>
-					A nice saying is that Interface Segregation and Liskov Substitution are <strong>Two side of the same
-						coin</strong>
+					A nice saying is that Interface Segregation and Liskov Substitution are <strong>Two sides of the same coin</strong>
 				</p>
 				<p>
-					ISP is about the "client" side - keeping clients from impl your interfaces in an unwanted way.
+					ISP cares about "client" side - keeping clients from implementing your interfaces in an unsafe way (no-op or throw exceptions).
 				</p>
 				<p>
 					LSP is about the "server" side - keeping you from from writing potentially dangerous code (runtime errs)
@@ -606,8 +593,7 @@ class BarEventListener implements SingleClickListener {
 				<p><strong>What are high and low levels?</strong></p>
 				<ol style="text-align: left;">
 					<li>
-						<strong>Low-level</strong> - concrete implementation including the small details such as IO, I/O, storage
-						etc
+						<strong>Low-level</strong> - concrete implementation including the small details such as connection protocl, file I/O, storage etc
 					</li>
 					<li>
 						<strong>High-level</strong> - business rules and the bigger picture
@@ -623,9 +609,7 @@ class BarEventListener implements SingleClickListener {
 			<section>
 				<p>Benefits OR "Why avoid high-level modules depending on low-level?"</p>
 				<ul style="text-align: left;">
-					<li>low-level modules tend to change more often than high-level modules.</li>
-					<li>When we make a change in a low-level module, we want to prevent that we also need to make changes a
-						high-level module. <br />
+					<li>When we make a change in a low-level module, we want to prevent that we also need to make changes a	high-level module. <br />
 						We want to minimize the "surface of change".</li>
 					<li>High-level modules (biz rules) are easier to reuse when they aren't tightly coupled to low-level modules.
 					</li>
@@ -652,15 +636,15 @@ class BarEventListener implements SingleClickListener {
 				<p>IoC is just inversing the control, the opposite of IoC is control! </p>
 
 				<div style="text-align: left;">
-					Example: onClick(callback) of a button, button is clicked but hands control over to the callback.
+					Strategy Pattern is a nice example because code usign it hands over control to the strategy.
 				</div>
 				<hr />
 
 				<p>Dependency Injection is just a combination IoC and DIP to manage dependencies</p>
 
 				<div style="text-align: left;">
-					Instead of classes controlling and instantiating their dependencies, they give control to a DI framework,
-					asking for a concrete instance of an interface.
+					IoC: Instead of classes instantiating their dependencies, they give control to a DI framework.<br/>
+					DIP: classes depend on an abstraction, the DI framework knows the concrete (low-level) instance needed.
 				</div>
 				<hr />
 			</section>
