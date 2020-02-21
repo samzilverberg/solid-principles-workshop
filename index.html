@@ -43,6 +43,8 @@
 					- understandable = readable, has predictible order
 					- flexible = easier to add features
 					- maintainable = easier to make changes to existing features
+
+					- its not about more correct code or more performant
 				</aside>
 			</section>
 
@@ -66,8 +68,8 @@
 				<h3>Some reasons to learn this</h3>
 				<ul style="text-align: left;">
 					<li>
-						You've probably been practicing some (if not all) of these principles instinctively and unconsciously.<br />
-						Its good to "formalize" this and be conscious about it.
+						You've probably been practicing some (if not all) of these principles instinctively or unconsciously.<br />
+						It's good to "formalize" this and be conscious about it.
 					</li>
 					<li>
 						Gives extra points to think about in code review (or refactor)
@@ -638,21 +640,22 @@ class Robot implements Workable {
 			</section>
 
 			<section>
-				<hr />
 				<p>IoC is just inversing the control, the opposite of IoC is control! </p>
 
 				<div style="text-align: left;">
 					Strategy Pattern is a nice example because code usign it hands over control to the strategy.
 				</div>
-				<hr />
+			</section>
 
+			<section>
 				<p>Dependency Injection is just a combination IoC and DIP to manage dependencies</p>
 
+				<hr/>
 				<div style="text-align: left;">
 					IoC: Instead of classes instantiating their dependencies, they give control to a DI framework.<br/>
+					<hr/>
 					DIP: classes depend on an abstraction, the DI framework knows the concrete (low-level) instance needed.
 				</div>
-				<hr />
 			</section>
 
 
