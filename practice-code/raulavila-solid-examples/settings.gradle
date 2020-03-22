@@ -1,0 +1,6 @@
+rootProject.name = 'solid-examples'
+include 'ocp'
+include 'lsp'
+include 'isp'
+include 'dip'
+
